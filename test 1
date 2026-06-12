@@ -1,0 +1,76 @@
+package model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * GameState: Score, Leben, Pellets, Game-Over-Flag
+ */
+public class GameState {
+
+    private int score;
+    private int lives;
+    private boolean gameOver;
+    private List<int[]> pellets; // Jedes Pellet = [x, y]
+
+    private static final int PELLET_POINTS = 10;
+    private static final int GHOST_POINTS  = 200;
+    private static final int START_LIVES   = 3;
+
+    public GameState(List<int[]> initialPellets) {
+        this.score    = 0;
+        this.lives    = START_LIVES;
+        this.gameOver = false;
+        this.pellets  = new ArrayList<>(initialPellets);
+    }
+
+    /** Pellet einsammeln, falls PacMan auf einem Pellet steht. */
+    public boolean collectPellet(int pacX, int pacY) {
+        for (int[] pellet : pellets) {
+            if (pellet[0] == pacX && pellet[1] == pacY) {
+                pellets.remove(pellet);
+                score += PELLET_POINTS;
+                checkWin();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Ghost getroffen â Leben verlieren. */
+    public void loseLife() {
+        lives--;
+        if (lives <= 0) {
+            lives    = 0;
+            gameOver = true;
+        }
+    }
+
+    /** Ghost gefressen (Power-Up-Logik, optional erweiterbar). */
+    public void eatGhost() {
+        score += GHOST_POINTS;
+    }
+
+    /** Gewonnen, wenn alle Pellets weg sind. */
+    private void checkWin() {
+        if (pellets.isEmpty()) {
+            gameOver = true; // Kann in View als Sieg angezeigt werden
+        }
+    }
+
+    public boolean hasWon() {
+        return pellets.isEmpty();
+    }
+
+    // --- Getter ---
+    public int getScore()          { return score; }
+    public int getLives()          { return lives; }
+    public boolean isGameOver()    { return gameOver; }
+    public List<int[]> getPellets(){ return pellets; }
+
+    @Override
+    public String toString() {
+        return "GameState[score=" + score + ", lives=" + lives
+                + ", pellets=" + pellets.size() + ", gameOver=" + gameOver + "]";
+    }
+}
